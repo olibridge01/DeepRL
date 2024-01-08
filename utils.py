@@ -1,5 +1,7 @@
+import random
 import numpy as np
 import matplotlib.pyplot as plt
+from collections import deque, namedtuple
 
 class Config(object):
     """Holds parameters for training."""
@@ -7,11 +9,32 @@ class Config(object):
         self.environment = None
         self.hyperparameters = None
 
+class ReplayBuffer(object):
+    def __init__(self, buffer_size: int) -> None:
+        self.memory = deque([], maxlen=buffer_size)
+        self.transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
+    
+    def add_transition(self, *args):
+        """Saves a transition"""
+        self.memory.append(self.transition(*args))
+    
+    def sample(self, batch_size: int, separate_types: bool = True) -> tuple:
+        """Returns a random sample of transitions"""
+        samples = random.sample(self.memory, k=batch_size)
+        if separate_types:
+            return self.transition(*zip(*samples))
+        else:
+            return samples
+    
+    def __len__(self) -> int:
+        """Returns the length of the memory"""
+        return len(self.memory)
+
 def plot_durations(
         episode_durations: list,
         figsize: tuple = (10, 6),
         moving_average_window: int = 100
-) -> None:
+    ) -> None:
     """Plots episode durations over time."""
     plt.figure(figsize=figsize)
 
