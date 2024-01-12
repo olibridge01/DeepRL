@@ -1,6 +1,4 @@
-
 import gymnasium as gym
-
 from utils.config import Config
 
 class RandomAgent(object):

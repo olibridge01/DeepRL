@@ -8,6 +8,7 @@ from utils.plotters import plot_durations, save_trained_agent_gif
 from agents.RandomAgent import RandomAgent
 from agents.QLearningAgent import QLearningAgent
 from agents.DQNAgent import DQNAgent
+from agents.DDQNAgent import DDQNAgent
 
 # Set up CartPole configuration
 cartpole_config = Config()
@@ -66,11 +67,11 @@ mountaincar_config.hyperparameters = {
 
 
 # Define and train Q-Learning agent
-agent = RandomAgent(mountaincar_config)
-save_trained_agent_gif(agent, 'Random agent', 'mountaincar_random', n_time_steps=200)
+agent = RandomAgent(cartpole_config)
+save_trained_agent_gif(agent, 'Random agent', 'cartpole_random', n_time_steps=250)
 
 # Define and train DQN agent
-agent = DQNAgent(mountaincar_config)
+agent = DDQNAgent(cartpole_config)
 episode_durations = agent.train()
 
 # Plot episode durations
@@ -78,4 +79,4 @@ plot_durations(episode_durations,
                 figsize=(10, 6), 
                 moving_average_window=100
 )
-save_trained_agent_gif(agent, 'DQN agent', 'mountaincar_dqn', n_time_steps=200)
+save_trained_agent_gif(agent, 'DDQN agent', 'cartpole_ddqn', n_time_steps=500)
