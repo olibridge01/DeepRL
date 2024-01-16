@@ -26,7 +26,7 @@ class CarRacingEnv(gym.Wrapper):
         self.frame_skip = frame_skip
         self.burn_in = burn_in
 
-    def reset(self):
+    def reset(self) -> tuple:
         """Resets the environment and returns the initial observation."""
         obs, info = self.env.reset()
 
@@ -39,7 +39,7 @@ class CarRacingEnv(gym.Wrapper):
 
         return self.stacked_obs, info
     
-    def step(self, action):
+    def step(self, action: int) -> tuple:
         """Performs action for frame_skip steps and returns the stacked observations."""
         total_reward = 0
         for _ in range(self.frame_skip):

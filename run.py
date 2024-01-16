@@ -4,10 +4,11 @@ import gymnasium as gym
 
 from utils.config import Config
 from utils.plotters import plot_durations, save_trained_agent_gif
+from utils.preprocessing import CarRacingEnv
 
 from agents.RandomAgent import RandomAgent
 from agents.QLearningAgent import QLearningAgent
-from agents.DQNAgent import DQNAgent
+from agents.DQNAgent import DQNAgent, DQN_CNN_Agent
 from agents.DDQNAgent import DDQNAgent
 
 # Set up CartPole configuration
@@ -18,7 +19,7 @@ cartpole_config.hyperparameters = {
     'epsilon_decay': 0.99,
     'gamma': 0.99,
     'alpha': 0.05,
-    'num_episodes': 500,
+    'num_episodes': 600,
     'max_t': 500,
     'state_range': [(-4.8, 4.8), (-3, 3), (-0.5, 0.5), (-2, 2)],
     'n_state_bins': [7, 7, 7, 7],
@@ -65,18 +66,43 @@ mountaincar_config.hyperparameters = {
     'buffer_size': 10000,
 }
 
+# Set up CarRacing configuration
+carracing_config = Config()
+carracing_config.environment = CarRacingEnv(gym.make('CarRacing-v2', render_mode='rgb_array', continuous=False))
+carracing_config.hyperparameters = {
+    'epsilon': 1.0,
+    'epsilon_decay': 0.99,
+    'gamma': 0.99,
+    'num_episodes': 600,
+    'max_t': 250,
+    'batch_size': 32,
+    'kernel_sizes': [8, 4],
+    'strides': [4, 2],
+    'channels': [16, 32],
+    'hidden_dims': [256],
+    'last_layer_activation': False,
+    'learning_rate': 2.5e-4,
+    'tau': 0.001,
+    'buffer_size': 10000,
+    'input_shape': (4, 84, 84),
+    'min_epsilon': 0.05,
+}
 
-# Define and train Q-Learning agent
-agent = RandomAgent(cartpole_config)
-save_trained_agent_gif(agent, 'Random agent', 'cartpole_random', n_time_steps=250)
+# Example code for training an agent
 
-# Define and train DQN agent
-agent = DDQNAgent(cartpole_config)
-episode_durations = agent.train()
+agent = DQN_CNN_Agent(carracing_config)
+episodes, scores = agent.train()
+print(agent.PolicyNet)
 
 # Plot episode durations
-plot_durations(episode_durations, 
-                figsize=(10, 6), 
-                moving_average_window=100
+plot_durations(scores, 
+               figsize=(10, 6), 
+               moving_average_window=100,
+               filename='carracing_dqn'
 )
-save_trained_agent_gif(agent, 'DDQN agent', 'cartpole_ddqn', n_time_steps=500)
+
+save_trained_agent_gif(agent, 
+                       agentname='DQN Agent',
+                       filename='carracing_dqn',
+                       n_time_steps=250
+)
