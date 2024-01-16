@@ -66,13 +66,13 @@ $$
 The optimal action value function $Q^*: \mathcal{S} \times \mathcal{A} \to \mathbb{R}$ is the maximum action value function over all possible policies; it satisfies the Bellman optimality equation:
 
 $$
-Q^*(s,a) = \mathbb{E} \left[ R_{t+1} + \gamma \max_{a'} Q^*(S_{t+1},a') | S_t = s, A_t = a \right]
+Q^* (s,a) = \mathbb{E} \left[ R_{t+1} + \gamma \max_{a'} Q^* (S_{t+1},a') | S_t = s, A_t = a \right]
 $$
 
 For a *deterministic environment* - where each state/action pair $(s,a)$ maps to exactly one new state $s'$ - the optimal action value function can be rewritten as:
 
 $$
-Q^*(s,a) = r(s,a) + \gamma \max_{a'} Q^*(s',a')
+Q^* (s,a) = r(s,a) + \gamma \max_{a'} Q^* (s',a')
 $$
 
 where $r(s,a)$ is the reward for taking action $a$ in state $s$. 
