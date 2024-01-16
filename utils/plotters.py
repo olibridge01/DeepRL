@@ -6,7 +6,7 @@ import imageio
 from PIL import Image
 import PIL.ImageDraw as ImageDraw   
 import PIL.ImageFont as ImageFont
-import gym
+import gymnasium as gym
 import torch
 from utils.preprocessing import preprocess_obs
 

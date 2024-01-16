@@ -49,6 +49,7 @@ class DQN_CNN(nn.Module):
         for layer in self.layers:
             test_tensor = layer(test_tensor)
         self.feature_size = lambda: int(np.prod(test_tensor.size()))
+        print("Feature size:", self.feature_size())
 
         # Add fully connected layers
         self.layers.append(nn.Flatten())

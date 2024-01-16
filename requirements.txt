@@ -1,0 +1,6 @@
+numpy
+torch
+gymnasium
+matplotlib
+imageio
+PIL

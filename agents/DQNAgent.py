@@ -100,6 +100,7 @@ class DQNAgent(object):
 
         # Keep track of episode durations
         episode_durations = []
+        scores = []
 
         for episode in range(num_episodes):
             obs, _ = self.env.reset()
@@ -142,9 +143,12 @@ class DQNAgent(object):
                 if done:
                     print(f'Episode {episode:04d} | Steps: {(t+1):04d} | Score: {score:.2f}')
                     episode_durations.append(t + 1)
+                    scores.append(score)
                     break
-
-        return episode_durations
+        
+        # Save weights
+        torch.save(self.PolicyNet.state_dict(), 'weights.pt')
+        return episode_durations, scores
     
 
 class DQN_CNN_Agent(DQNAgent):

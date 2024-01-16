@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import gymnasium as gym
+import matplotlib.pyplot as plt
 
 def preprocess_obs(obs: np.ndarray) -> np.ndarray:
     """Convert state observation to grayscale and crop to 84x84."""
@@ -24,7 +25,6 @@ class CarRacingEnv(gym.Wrapper):
         self.frame_stack = frame_stack
         self.frame_skip = frame_skip
         self.burn_in = burn_in
-
 
     def reset(self):
         """Resets the environment and returns the initial observation."""
@@ -53,8 +53,10 @@ class CarRacingEnv(gym.Wrapper):
         self.stacked_obs = np.concatenate((self.stacked_obs[1:], [preprocess_obs(obs)]), axis=0)
         return self.stacked_obs, total_reward, terminated, truncated, info
 
+
 if __name__ == '__main__':  
-    import matplotlib.pyplot as plt
+
+    # Test the preprocessing on CarRacing-v2 environment
     env = gym.make('CarRacing-v2', continuous=False)
     env = CarRacingEnv(env)
 
@@ -66,8 +68,3 @@ if __name__ == '__main__':
         axes[i].imshow(s[i], cmap='gray')
         axes[i].axis('off')
     plt.show()
-
-
-
-
-
