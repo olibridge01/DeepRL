@@ -12,7 +12,9 @@ import torch.optim as optim
 from utils.plotters import plot_durations, save_trained_agent_gif
 from utils.config import Config
 from utils.experience_replay import ReplayBuffer
+from utils.preprocessing import preprocess_obs
 from networks.MLP import MLP
+from networks.CNN import DQN_CNN
 
 class DQNAgent(object):
     def __init__(self, config : Config):
@@ -143,3 +145,99 @@ class DQNAgent(object):
                     break
 
         return episode_durations
+    
+
+class DQN_CNN_Agent(DQNAgent):
+    def __init__(self, config: Config):
+        super(DQN_CNN_Agent, self).__init__(config)
+
+        self.input_shape = self.hyperparameters['input_shape']
+
+        self.PolicyNet = DQN_CNN(
+            input_shape=self.input_shape,
+            output_dims=self.n_actions,
+            kernel_sizes=self.hyperparameters['kernel_sizes'],
+            strides=self.hyperparameters['strides'],
+            channels=self.hyperparameters['channels'],
+            hidden_dims=self.hyperparameters['hidden_dims'],
+            activation=nn.ReLU(),
+            activation_last_layer=self.hyperparameters['last_layer_activation']
+        )
+        self.TargetNet = DQN_CNN(
+            input_shape=self.input_shape,
+            output_dims=self.n_actions,
+            kernel_sizes=self.hyperparameters['kernel_sizes'],
+            strides=self.hyperparameters['strides'],
+            channels=self.hyperparameters['channels'],
+            hidden_dims=self.hyperparameters['hidden_dims'],
+            activation=nn.ReLU(),
+            activation_last_layer=self.hyperparameters['last_layer_activation']
+        )
+        self.TargetNet.load_state_dict(self.PolicyNet.state_dict())
+
+        self.optimizer = optim.Adam(self.PolicyNet.parameters(), lr=self.hyperparameters['learning_rate'])
+        self.loss = F.smooth_l1_loss
+
+    def train(self) -> list:
+        """Train DQN agent."""
+        # Get necessary hyperparameters
+        self.epsilon = self.hyperparameters['epsilon']
+        self.epsilon_decay = self.hyperparameters['epsilon_decay']
+        num_episodes = self.hyperparameters['num_episodes']
+        max_t = self.hyperparameters['max_t']
+        tau = self.hyperparameters['tau']
+        min_epsilon = self.hyperparameters['min_epsilon']
+
+        # Keep track of episode durations
+        episode_durations = []
+        scores = []
+
+        for episode in range(num_episodes):
+            obs, _ = self.env.reset()
+            state = torch.tensor(obs, dtype=torch.float32).unsqueeze(0)
+            self.epsilon *= self.epsilon_decay
+            # self.epsilon = max(self.epsilon, min_epsilon)
+            score = 0
+            for t in count():
+                # Select action
+                action = self.get_action(state)
+
+                # Take action and observe next state
+                obs, reward, terminated, truncated, _ = self.env.step(action.item())
+
+                score += reward
+                reward = torch.tensor([reward])
+                done = terminated or truncated
+
+                if terminated:
+                    next_state = None
+                else:
+                    next_state = torch.tensor(obs, dtype=torch.float32).unsqueeze(0)
+
+                # Add transition to replay buffer
+                self.memory.add_transition(state, action, next_state, reward)
+
+                # Update state and action
+                state = next_state
+
+                # Update policy
+                self.update()
+
+                # Soft update target network
+                target_net_state_dict = self.TargetNet.state_dict()
+                policy_net_state_dict = self.PolicyNet.state_dict()
+
+                for name in target_net_state_dict:
+                    target_net_state_dict[name] = tau * policy_net_state_dict[name] + (1 - tau) * target_net_state_dict[name]
+
+                self.TargetNet.load_state_dict(target_net_state_dict)
+
+                if done:
+                    print(f'Episode {episode:04d} | Steps: {(t+1):04d} | Score: {score:.2f}')
+                    episode_durations.append(t + 1)
+                    scores.append(score)
+                    break
+        
+        # Save weights
+        torch.save(self.PolicyNet.state_dict(), 'weights.pt')
+        return episode_durations, scores
