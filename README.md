@@ -80,7 +80,7 @@ where $r(s,a)$ is the reward for taking action $a$ in state $s$.
 In **Q-Learning**, the agent learns an estimate of the optimal action value function $Q\approx Q^*$ by performing an update at each timestep:
 
 $$
-Q(s_t,a_t) \gets Q(a_t,a_t) + \alpha \left[ r(s_t,a_t) + \gamma \max_{a'} Q(s_{t+1},a') - Q(s_t,a_t) \right]
+Q(s_t,a_t) \gets Q(s_t,a_t) + \alpha \left[ r(s_t,a_t) + \gamma \max_{a'} Q(s_{t+1},a') - Q(s_t,a_t) \right]
 $$
 
 where $\alpha$ is the learning rate. This method typically makes use of a table to store the action value function values. This requires a continuous state space to be discretised, and is therefore only suitable for small state/action spaces $\mathcal{S}\times\mathcal{A}$.
@@ -157,7 +157,7 @@ The aim is to achieve the highest score possible by racing a car around a racetr
   <img src="https://github.com/olibridge01/DeepRL/assets/86416298/4f407768-0155-4357-ad06-d4367c4c47ab" width="59%" />
 </p>
 
-A plot of the rolling scores (`100`-episode window) as a function of training episodes is shown below. The score clearly improves when the agent learns how to drive the car round the track effectively.
+A plot of the rolling scores (`100`-episode window) as a function of training episodes for the DQN algorithm is shown below. The score clearly improves when the agent learns how to drive the car round the track effectively.
 
 <p align="center">
   <img src="https://github.com/olibridge01/DeepRL/assets/86416298/8ad3f9f7-3bb5-4d27-a409-cf45f1f80349" width="70%" />

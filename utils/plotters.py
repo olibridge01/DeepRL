@@ -50,6 +50,7 @@ def plot_durations(
         plt.savefig(f'{filename}.pdf', dpi=600, bbox_inches='tight')
     plt.show()
 
+
 def plot_scores(
         scores: list,
         figsize: tuple = (10, 6),
